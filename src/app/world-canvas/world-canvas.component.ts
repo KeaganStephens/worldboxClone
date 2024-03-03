@@ -13,7 +13,8 @@ export class WorldCanvasComponent implements OnInit{
   ngOnInit(): void {
     const overWorldConfig: OverWorldConfig = {
       element: document.querySelector(".canvasContainer") as HTMLElement,
-      canvas: 'gameCanvas'
+      canvas: 'gameCanvas',
+      src : "../../assets/img/pixilart-drawing.png"
     };
 
     const overWorld = new OverWorld(overWorldConfig);
