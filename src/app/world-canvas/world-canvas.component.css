@@ -1,0 +1,19 @@
+.gameCanvas
+{
+    /* border:solid red 1px; */
+}
+
+.canvasContainer
+{
+    position: relative;
+    width: 352px;
+    height: 198px;
+    border:solid blue 1px;
+
+    transform: scale(3);
+}
+
+.gameCanvas
+{
+    image-rendering: pixelated;
+}
