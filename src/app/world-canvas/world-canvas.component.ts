@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { OverWorld, OverWorldConfig } from '../classes/overWorld';
 
 @Component({
   selector: 'app-world-canvas',
@@ -7,6 +8,16 @@ import { Component } from '@angular/core';
   templateUrl: './world-canvas.component.html',
   styleUrl: './world-canvas.component.css'
 })
-export class WorldCanvasComponent {
+export class WorldCanvasComponent implements OnInit{
+
+  ngOnInit(): void {
+    const overWorldConfig: OverWorldConfig = {
+      element: document.querySelector(".canvasContainer") as HTMLElement,
+      canvas: 'gameCanvas'
+    };
+
+    const overWorld = new OverWorld(overWorldConfig);
+    overWorld.init();
+  }
 
 }
