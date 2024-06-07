@@ -42,28 +42,36 @@ export class WorldCanvasComponent implements OnInit {
         case 'ArrowUp':
           case 'w':
           case 'W':
-            this.npcMovementQueue.push('up')
+            this.checkValidityOfMovement('up')
             break;
           case 'ArrowDown':
           case 's':
           case 'S':
-            this.npcMovementQueue.push('down')
+            this.checkValidityOfMovement('down')
             break;
           case 'ArrowLeft':
           case 'a':
           case 'A':
-            this.npcMovementQueue.push('left')
+            this.checkValidityOfMovement('left')
             this.currentNpcDirection = 'left'
             break;
           case 'ArrowRight':
           case 'd':
           case 'D':
-            this.npcMovementQueue.push('right')
+            this.checkValidityOfMovement('right')
             this.currentNpcDirection = 'right'
             break;
         default:
           return;
       }
+    }
+  }
+
+  checkValidityOfMovement(direction : string){
+    let lengthOfMovementList = this.npcMovementQueue.length
+    if(this.npcMovementQueue[lengthOfMovementList - 1] !== direction){
+      this.npcMovementQueue.pop()
+      this.npcMovementQueue.push(direction)
     }
   }
 
@@ -120,7 +128,7 @@ export class WorldCanvasComponent implements OnInit {
       let lengthOfMovementList = this.npcMovementQueue.length 
       if(lengthOfMovementList > 0){
         this.movementOfNPC(this.npcMovementQueue[lengthOfMovementList - 1])
-        this.npcMovementQueue = []
+        this.npcMovementQueue.pop()
       }
     }
     if(this.npcCurrentFrameIndex >= this.npcMovingIndex['right'].length - 1){
