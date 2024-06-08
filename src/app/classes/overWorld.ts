@@ -1,29 +1,17 @@
 export interface OverWorldNpcConfig {
     element: HTMLElement,
     canvas: string,
-    src : string,
-    x : number,
-    y : number,
-    lookDirection : string
   };
   
 export class OverWorld {
   private element: HTMLElement;
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
-  private src: string;
-  private currentX : number;
-  private currentY : number;
-  private lookDirection : string;
 
   constructor(config: OverWorldNpcConfig) {
     this.element = config.element;
     this.canvas = this.element.querySelector(`.${config.canvas}`) as HTMLCanvasElement;
     this.ctx = this.canvas.getContext('2d')!;
-    this.src = config.src;
-    this.currentX = config.x;
-    this.currentY = config.y;
-    this.lookDirection = config.lookDirection;
   }
 
   init(): void {
