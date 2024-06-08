@@ -18,9 +18,9 @@ export class WorldCanvasComponent implements OnInit {
   npcMoving = false;
   currentWidthOfFrame = 12;
   npcCurrentFrameIndex = 0;
-  currentLeftIndex = 0;
-  currentRightIndex = 0;
-  npcMovementQueue : string[] = []
+  npcMovementQueue : string[] = [];
+  previousX = {value : 0};
+  previousY = {value : 0};
  
   npcMovingIndex: MovementPattern = {
     'right': [[0, 0], [0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [0, 4], [0, 3], [0, 2], [0, 1], [0, 0]],
@@ -38,24 +38,24 @@ export class WorldCanvasComponent implements OnInit {
         case 'ArrowUp':
           case 'w':
           case 'W':
-            this.checkValidityOfMovement('up')
+            this.checkValidityOfMovement('up');
             break;
           case 'ArrowDown':
           case 's':
           case 'S':
-            this.checkValidityOfMovement('down')
+            this.checkValidityOfMovement('down');
             break;
           case 'ArrowLeft':
           case 'a':
           case 'A':
-            this.checkValidityOfMovement('left')
-            this.currentNpcDirection = 'left'
+            this.checkValidityOfMovement('left');
+            this.currentNpcDirection = 'left';
             break;
           case 'ArrowRight':
           case 'd':
           case 'D':
-            this.checkValidityOfMovement('right')
-            this.currentNpcDirection = 'right'
+            this.checkValidityOfMovement('right');
+            this.currentNpcDirection = 'right';
             break;
         default:
           return;
@@ -65,13 +65,13 @@ export class WorldCanvasComponent implements OnInit {
   checkValidityOfMovement(direction : string){
     let lengthOfMovementList = this.npcMovementQueue.length
     if(this.npcMovementQueue[lengthOfMovementList - 1] !== direction){
-      this.npcMovementQueue.pop()
-      this.npcMovementQueue.push(direction)
+      this.npcMovementQueue.pop();
+      this.npcMovementQueue.push(direction);
     }
   }
 
   movementOfNPC(direction : string){
-    this.npcMoving = true
+    this.npcMoving = true;
     switch (direction){
       case 'up':
         this.currentY--
@@ -111,32 +111,30 @@ export class WorldCanvasComponent implements OnInit {
   startGameLoop() { 
     const gameLoop = () => {
       this.render();
-      requestAnimationFrame(() => gameLoop())
+      requestAnimationFrame(() => gameLoop());
     };
-    gameLoop()
+    gameLoop();
   }
 
   render() { //todo: move NPC on a later stated to separate 
-    if(this.npcCurrentFrameIndex >= this.npcMovingIndex['right'].length - 1){
-      this.npcMoving = false
-      this.movingY = false
-      this.movingX = false
-      this.npcCurrentFrameIndex = 0
-
-      if(!this.npcMoving){
-        let lengthOfMovementList = this.npcMovementQueue.length 
-        if(lengthOfMovementList > 0){
-          this.movementOfNPC(this.npcMovementQueue[lengthOfMovementList - 1])
-          this.npcMovementQueue.pop()
-        }
-      }
-
-    }else{
-      if(this.npcMoving){
-        this.npcCurrentFrameIndex++
+    if(!this.npcMoving){
+      let lengthOfMovementList = this.npcMovementQueue.length ;
+      if(lengthOfMovementList > 0){
+        this.movementOfNPC(this.npcMovementQueue[lengthOfMovementList - 1]);
+        this.npcMovementQueue.pop()
       }
     }
-
+    if(this.npcCurrentFrameIndex >= this.npcMovingIndex['right'].length - 1){
+      this.npcMoving = false;
+      this.movingY = false;
+      this.movingX = false;
+      this.npcCurrentFrameIndex = 0;
+    }else{
+      if(this.npcMoving){
+        this.npcCurrentFrameIndex++;
+      }
+    }
+    
     this.overWorld.renderNpc(
       "../../assets/img/pixil-frame-0.png",
       this.getCurrentPositionToDisplay(this.movingX, this.previousX, this.currentX),
@@ -148,27 +146,23 @@ export class WorldCanvasComponent implements OnInit {
 
   changeSpriteAnimation(index : number, array : string[]){
     if(index == array.length ){
-      return 0
+      return 0;
     }else{
-      return index + 1
+      return index + 1;
     }
   }
 
-  //todo: improve code below
-  previousX = {value : 0}
-  previousY = {value : 0}
-
   getCurrentPositionToDisplay(moving : boolean, previous : any, current : number){
-    let EndPositionToDisplay = current * 12
+    let EndPositionToDisplay = current * 12;
     if(moving){
       if( EndPositionToDisplay < previous.value){
-        return previous.value - this.npcCurrentFrameIndex + 1
+        return previous.value - this.npcCurrentFrameIndex + 1;
       }else{
-        return previous.value + this.npcCurrentFrameIndex + 1
+        return previous.value + this.npcCurrentFrameIndex + 1;
       }
     }else{
-      previous.value = EndPositionToDisplay
-      return EndPositionToDisplay
+      previous.value = EndPositionToDisplay;
+      return EndPositionToDisplay;
     }
   }
 
