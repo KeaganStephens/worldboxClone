@@ -11,14 +11,14 @@ import { OverWorld, OverWorldNpcConfig} from '../classes/overWorld';
 export class WorldCanvasComponent implements OnInit {
   private currentX = 0;
   private currentY = 0;
-  private overWorld!: OverWorld;
+    private overWorld!: OverWorld;
   movingX = false; //todo : improve naming convention and ';' standard
   movingY = false;
-  currentNpcDirection : string = 'left';
+    currentNpcDirection : string = 'left';
   npcMoving = false;
   currentWidthOfFrame = 12;
   npcCurrentFrameIndex = 0;
-  currentLeftIndex = 0;
+currentLeftIndex = 0;
   currentRightIndex = 0;
   npcMovementQueue : string[] = []
  
@@ -117,26 +117,25 @@ export class WorldCanvasComponent implements OnInit {
   }
 
   render() { //todo: move NPC on a later stated to separate 
+    // debugger
+    if(!this.npcMoving){
+      let lengthOfMovementList = this.npcMovementQueue.length 
+      if(lengthOfMovementList > 0){
+        this.movementOfNPC(this.npcMovementQueue[lengthOfMovementList - 1])
+        this.npcMovementQueue.pop()
+      }
+    }
     if(this.npcCurrentFrameIndex >= this.npcMovingIndex['right'].length - 1){
-      this.npcMoving = false
+            this.npcMoving = false
       this.movingY = false
       this.movingX = false
       this.npcCurrentFrameIndex = 0
-
-      if(!this.npcMoving){
-        let lengthOfMovementList = this.npcMovementQueue.length 
-        if(lengthOfMovementList > 0){
-          this.movementOfNPC(this.npcMovementQueue[lengthOfMovementList - 1])
-          this.npcMovementQueue.pop()
-        }
-      }
-
     }else{
       if(this.npcMoving){
         this.npcCurrentFrameIndex++
       }
     }
-
+    
     this.overWorld.renderNpc(
       "../../assets/img/pixil-frame-0.png",
       this.getCurrentPositionToDisplay(this.movingX, this.previousX, this.currentX),
