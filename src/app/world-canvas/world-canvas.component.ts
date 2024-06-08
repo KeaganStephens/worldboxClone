@@ -11,18 +11,15 @@ import { OverWorld, OverWorldNpcConfig} from '../classes/overWorld';
 export class WorldCanvasComponent implements OnInit {
   private currentX = 0;
   private currentY = 0;
-  private requestId!: number;
   private overWorld!: OverWorld;
-  movingX = false;
+  movingX = false; //todo : improve naming convention and ';' standard
   movingY = false;
-  tempX = 0;
-  tempY = 0; 
-  npcSkinLeft = ['movingLeft', 'movingLeft','movingLeft','movingLeft','movingLeft','movingLeft', 'left', 'left','left','left','left','left']; //Improve the way that character movement functions
-  npcSkinRight = ['movingRight', 'movingRight','movingRight', 'movingRight', 'movingRight', 'movingRight', 'right', 'right', 'right', 'right', 'right', 'right']; 
   currentNpcDirection : string = 'left';
   npcMoving = false;
   currentWidthOfFrame = 12;
   npcCurrentFrameIndex = 0;
+  currentLeftIndex = 0;
+  currentRightIndex = 0;
   npcMovementQueue : string[] = []
  
   npcMovingIndex: MovementPattern = {
@@ -37,7 +34,6 @@ export class WorldCanvasComponent implements OnInit {
 
   @HostListener('window:keydown', ['$event'])
   handleKeyDown(event: KeyboardEvent) {
-    if(!this.movingY && !this.movingX){
       switch (event.key) {
         case 'ArrowUp':
           case 'w':
@@ -64,7 +60,6 @@ export class WorldCanvasComponent implements OnInit {
         default:
           return;
       }
-    }
   }
 
   checkValidityOfMovement(direction : string){
@@ -121,28 +116,27 @@ export class WorldCanvasComponent implements OnInit {
     gameLoop()
   }
 
-  render() { //move NPC on a later stated to separate 
-    // debugger
-    this 
-    if(!this.npcMoving){
-      let lengthOfMovementList = this.npcMovementQueue.length 
-      if(lengthOfMovementList > 0){
-        this.movementOfNPC(this.npcMovementQueue[lengthOfMovementList - 1])
-        this.npcMovementQueue.pop()
-      }
-    }
+  render() { //todo: move NPC on a later stated to separate 
     if(this.npcCurrentFrameIndex >= this.npcMovingIndex['right'].length - 1){
-      // debugger
       this.npcMoving = false
       this.movingY = false
       this.movingX = false
       this.npcCurrentFrameIndex = 0
+
+      if(!this.npcMoving){
+        let lengthOfMovementList = this.npcMovementQueue.length 
+        if(lengthOfMovementList > 0){
+          this.movementOfNPC(this.npcMovementQueue[lengthOfMovementList - 1])
+          this.npcMovementQueue.pop()
+        }
+      }
+
     }else{
       if(this.npcMoving){
         this.npcCurrentFrameIndex++
       }
     }
-    // debugger
+
     this.overWorld.renderNpc(
       "../../assets/img/pixil-frame-0.png",
       this.getCurrentPositionToDisplay(this.movingX, this.previousX, this.currentX),
@@ -151,9 +145,6 @@ export class WorldCanvasComponent implements OnInit {
       this.npcMovingIndex[this.currentNpcDirection][0][0] * this.currentWidthOfFrame
       ); 
   }
-
-  currentLeftIndex = 0;
-  currentRightIndex = 0;
 
   changeSpriteAnimation(index : number, array : string[]){
     if(index == array.length ){
