@@ -1,3 +1,6 @@
+# Worldbox is a amazing game that I find extremely interesting.
+This repo is a attempte to recreate worldbox for the sake of improving my skill and having fun. GO support the original game -> (https://www.superworldbox.com/)
+
 # WorldboxClone
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.2.2.
