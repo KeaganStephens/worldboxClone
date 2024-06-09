@@ -115,7 +115,7 @@ export class WorldCanvasComponent implements OnInit {
   }
 
   render() { //todo: move NPC on a later stated to separate 
-    if(!this.npcMoving){
+    if(!this.npc.isMoving){
       let lengthOfMovementList = this.npc.movementQueue.length ;
       if(lengthOfMovementList > 0){
         this.movementOfNPC(this.npc.movementQueue[lengthOfMovementList - 1]);
