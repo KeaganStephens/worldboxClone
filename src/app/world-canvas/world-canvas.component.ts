@@ -9,18 +9,20 @@ import { OverWorld, OverWorldNpcConfig} from '../classes/overWorld';
   styleUrls: ['./world-canvas.component.css'] // Fixed typo: styleUrl to styleUrls
 })
 export class WorldCanvasComponent implements OnInit {
-  private currentX = 0;
-  private currentY = 0;
   private overWorld!: OverWorld;
-  movingX = false; //todo : improve naming convention and ';' standard
-  movingY = false;
-  currentNpcDirection : string = 'left';
-  npcMoving = false;
-  currentWidthOfFrame = 12;
-  npcCurrentFrameIndex = 0;
-  npcMovementQueue : string[] = [];
-  previousX = {value : 0};
-  previousY = {value : 0};
+
+  listOfNpc :NPC[] = [
+    new NPC,
+    new NPC,
+    new NPC,
+    new NPC,
+    new NPC,
+    new NPC,
+    new NPC,
+    new NPC,
+    new NPC,
+    new NPC(5,1)
+  ]
  
   npcMovingIndex: MovementPattern = {
     'right': [[0, 0], [0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [0, 4], [0, 3], [0, 2], [0, 1], [0, 0]],
@@ -34,60 +36,86 @@ export class WorldCanvasComponent implements OnInit {
 
   @HostListener('window:keydown', ['$event'])
   handleKeyDown(event: KeyboardEvent) {
-      switch (event.key) {
-        case 'ArrowUp':
-          case 'w':
-          case 'W':
-            this.checkValidityOfMovement('up');
-            break;
-          case 'ArrowDown':
-          case 's':
-          case 'S':
-            this.checkValidityOfMovement('down');
-            break;
-          case 'ArrowLeft':
-          case 'a':
-          case 'A':
-            this.checkValidityOfMovement('left');
-            this.currentNpcDirection = 'left';
-            break;
-          case 'ArrowRight':
-          case 'd':
-          case 'D':
-            this.checkValidityOfMovement('right');
-            this.currentNpcDirection = 'right';
-            break;
-        default:
-          return;
-      }
+    this.moveNpc(this.listOfNpc[0], event.key)
   }
 
-  checkValidityOfMovement(direction : string){
-    let lengthOfMovementList = this.npcMovementQueue.length
-    if(this.npcMovementQueue[lengthOfMovementList - 1] !== direction){
-      this.npcMovementQueue.pop();
-      this.npcMovementQueue.push(direction);
+  moveNpc(npc : NPC, input : string | KeyboardEvent){
+    switch (input) {
+      case 'ArrowUp':
+        case 'w':
+        case 'W':
+          this.checkValidityOfMovement('up', npc);
+          break;
+        case 'ArrowDown':
+        case 's':
+        case 'S':
+          this.checkValidityOfMovement('down', npc);
+          break;
+        case 'ArrowLeft':
+        case 'a':
+        case 'A':
+          this.checkValidityOfMovement('left', npc);
+          npc.currentDirection = 'left';
+          break;
+        case 'ArrowRight':
+        case 'd':
+        case 'D':
+          this.checkValidityOfMovement('right', npc);
+          npc.currentDirection  = 'right';
+          break;
+      default:
+        return;
     }
   }
 
-  movementOfNPC(direction : string){
-    this.npcMoving = true;
+  npcRandomWalk(npc : NPC){
+    let randomDirection = Math.floor(Math.random() * 4 + 1)
+    let direction
+    switch (randomDirection) {
+      case 1:
+          direction  = 'w';
+          break;
+        case 2:
+          direction  = 's';
+          break;
+        case 3:
+          direction  = 'a';
+          break;
+        case 4:
+          direction  = 'd';
+          break;
+      default:
+        return;
+    }
+    this.moveNpc(npc, direction)
+  }
+
+  checkValidityOfMovement(direction : string, npc : NPC){
+    let lengthOfMovementList = npc.movementQueue.length
+    if(npc.movementQueue[lengthOfMovementList - 1] !== direction){
+      npc.movementQueue.pop();
+      npc.movementQueue.push(direction);
+    }
+  }
+
+  movementOfNPC(direction : string, npc : NPC){
+    npc.isMoving = true;
     switch (direction){
       case 'up':
-        this.currentY--
-        this.movingY = true;
+        npc.currentY--;
+        npc.isMovingY = true;
         break
       case 'down':
-        this.currentY++
-        this.movingY = true;
+        npc.currentY++;
+        npc.isMovingY = true;
         break
       case 'left':
-        this.currentX--
-        this.movingX = true;
+        npc.currentX--;
+        npc.isMovingX = true;
         break
       case 'right':
-        this.currentX++
-        this.movingX = true;
+        npc.currentX++;
+        npc.isMovingX = true;
         break
       default:
         break
@@ -98,10 +126,6 @@ export class WorldCanvasComponent implements OnInit {
     const overWorldConfig: OverWorldNpcConfig = {
       element: document.querySelector('.canvasContainer') as HTMLElement,
       canvas: 'gameCanvas',
-      src: '../../assets/img/pixilart-drawing.png',
-      x: this.currentX,
-      y: this.currentY,
-      lookDirection: 'movingRight',
     };
 
     this.overWorld = new OverWorld(overWorldConfig);
@@ -117,31 +141,36 @@ export class WorldCanvasComponent implements OnInit {
   }
 
   render() { //todo: move NPC on a later stated to separate 
-    if(!this.npcMoving){
-      let lengthOfMovementList = this.npcMovementQueue.length ;
-      if(lengthOfMovementList > 0){
-        this.movementOfNPC(this.npcMovementQueue[lengthOfMovementList - 1]);
-        this.npcMovementQueue.pop()
+    for(let i = 0; i < this.listOfNpc.length; i++){
+      let npc = this.listOfNpc[i];
+      this.npcRandomWalk(npc)
+      if(!npc.isMoving){
+        let lengthOfMovementList = npc.movementQueue.length ;
+        if(lengthOfMovementList > 0){
+          this.movementOfNPC(npc.movementQueue[lengthOfMovementList - 1], npc);
+          npc.movementQueue.pop()
+        }
       }
-    }
-    if(this.npcCurrentFrameIndex >= this.npcMovingIndex['right'].length - 1){
-      this.npcMoving = false;
-      this.movingY = false;
-      this.movingX = false;
-      this.npcCurrentFrameIndex = 0;
-    }else{
-      if(this.npcMoving){
-        this.npcCurrentFrameIndex++;
+      if(npc.frameIndex >= this.npcMovingIndex['right'].length - 1){
+        npc.isMoving = false;
+        npc.isMovingY = false;
+        npc.isMovingX = false;
+        npc.frameIndex = 0;
+      }else{
+        if(npc.isMoving){
+          npc.frameIndex++;
+        }
       }
+      
+      this.overWorld.renderNpc(
+        i == 0 ? true : false,
+        "../../assets/img/pixil-frame-0.png",
+        this.getCurrentPositionToDisplay(npc, npc.isMovingX, npc.previousX, npc.currentX),
+        this.getCurrentPositionToDisplay(npc, npc.isMovingY, npc.previousY, npc.currentY) ,
+        this.npcMovingIndex[npc.currentDirection][npc.frameIndex][1] * npc.frameWidth,
+        this.npcMovingIndex[npc.currentDirection][0][0] * npc.frameWidth
+        ); 
     }
-    
-    this.overWorld.renderNpc(
-      "../../assets/img/pixil-frame-0.png",
-      this.getCurrentPositionToDisplay(this.movingX, this.previousX, this.currentX),
-      this.getCurrentPositionToDisplay(this.movingY, this.previousY, this.currentY) ,
-      this.npcMovingIndex[this.currentNpcDirection][this.npcCurrentFrameIndex][1] * this.currentWidthOfFrame,
-      this.npcMovingIndex[this.currentNpcDirection][0][0] * this.currentWidthOfFrame
-      ); 
   }
 
   changeSpriteAnimation(index : number, array : string[]){
@@ -152,13 +181,13 @@ export class WorldCanvasComponent implements OnInit {
     }
   }
 
-  getCurrentPositionToDisplay(moving : boolean, previous : any, current : number){
+  getCurrentPositionToDisplay(npc: NPC, moving : boolean, previous : any, current : number){ //Todo: remove the extra parameters
     let EndPositionToDisplay = current * 12;
     if(moving){
       if( EndPositionToDisplay < previous.value){
-        return previous.value - this.npcCurrentFrameIndex + 1;
+        return previous.value - npc.frameIndex + 1;
       }else{
-        return previous.value + this.npcCurrentFrameIndex + 1;
+        return previous.value + npc.frameIndex+ 1;
       }
     }else{
       previous.value = EndPositionToDisplay;
@@ -169,3 +198,35 @@ export class WorldCanvasComponent implements OnInit {
 }
 
 type MovementPattern = { [key: string]: number[][] };
+
+class NPC {
+  currentX: number;
+  currentY: number;
+  overWorld!: OverWorld;
+  isMovingX: boolean;
+  isMovingY: boolean;
+  currentDirection: string;
+  isMoving: boolean;
+  frameWidth: number;
+  frameIndex: number;
+  movementQueue: string[];
+  previousX: { value: number };
+  previousY: { value: number };
+  playable: boolean;
+  playerID?: string;
+
+  constructor(currentX: number = 10, currentY: number = 10) {
+    this.currentX = currentX;
+    this.currentY = currentY;
+    this.isMovingX = false;
+    this.isMovingY = false;
+    this.currentDirection = 'left';
+    this.isMoving = false;
+    this.frameWidth = 12;
+    this.frameIndex = 0;
+    this.movementQueue = [];
+    this.previousX = { value: 0 };
+    this.previousY = { value: 0 };
+    this.playable = false;
+  }
+}

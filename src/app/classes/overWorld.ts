@@ -1,35 +1,24 @@
 export interface OverWorldNpcConfig {
     element: HTMLElement,
     canvas: string,
-    src : string,
-    x : number,
-    y : number,
-    lookDirection : string
   };
   
 export class OverWorld {
   private element: HTMLElement;
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
-  private src: string;
-  private currentX : number;
-  private currentY : number;
-  private lookDirection : string;
 
   constructor(config: OverWorldNpcConfig) {
     this.element = config.element;
     this.canvas = this.element.querySelector(`.${config.canvas}`) as HTMLCanvasElement;
     this.ctx = this.canvas.getContext('2d')!;
-    this.src = config.src;
-    this.currentX = config.x;
-    this.currentY = config.y;
-    this.lookDirection = config.lookDirection;
   }
 
   init(): void {
   }
 
   renderNpc(
+      clearCanvas : boolean = false,
       img : string = "../../assets/img/pixilart-drawing.png",
       currentX : number = 0,
       currentY : number = 0,
@@ -38,11 +27,11 @@ export class OverWorld {
       widthOfCut : number = 12,  
       heightOfCut : number = 12,
       sizeToDraw1 : number = 12,
-      sizeToDraw2 : number = 12,
+      sizeToDraw2 : number = 12
     ){ //pass in parameters for npc to enhance multiple npc 
     const hero = new Image();
     hero.onload = () => {
-      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); 
+      if(clearCanvas) this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); 
       this.ctx.imageSmoothingEnabled = false; 
       this.ctx.drawImage(
           hero,
