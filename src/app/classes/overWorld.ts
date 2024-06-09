@@ -18,6 +18,7 @@ export class OverWorld {
   }
 
   renderNpc(
+      clearCanvas : boolean = false,
       img : string = "../../assets/img/pixilart-drawing.png",
       currentX : number = 0,
       currentY : number = 0,
@@ -26,11 +27,11 @@ export class OverWorld {
       widthOfCut : number = 12,  
       heightOfCut : number = 12,
       sizeToDraw1 : number = 12,
-      sizeToDraw2 : number = 12,
+      sizeToDraw2 : number = 12
     ){ //pass in parameters for npc to enhance multiple npc 
     const hero = new Image();
     hero.onload = () => {
-      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); 
+      if(clearCanvas) this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); 
       this.ctx.imageSmoothingEnabled = false; 
       this.ctx.drawImage(
           hero,
