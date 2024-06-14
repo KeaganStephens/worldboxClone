@@ -114,7 +114,7 @@ export class NpcService {
   render(overWorld : OverWorld) { 
     for(let i = 0; i < this.listOfNpc.length; i++){
       let npc = this.listOfNpc[i];
-      // this.npcRandomWalk(npc)
+      this.npcRandomWalk(npc)
       
       if(!npc.isMoving){
         let lengthOfMovementList = npc.movementQueue.length ;
@@ -155,9 +155,9 @@ export class NpcService {
     const EndPositionToDisplay = current * 12;
     if (moving) {
       if (EndPositionToDisplay < previous.value) {
-        return previous.value - npc.frameIndex + 1;
+        return previous.value - npc.frameIndex ;
       } else {
-        return previous.value + npc.frameIndex + 1;
+        return previous.value + npc.frameIndex ;
       }
     } else {
       previous.value = EndPositionToDisplay;
