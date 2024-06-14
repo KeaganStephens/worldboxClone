@@ -1,11 +1,13 @@
 import { Injectable } from '@angular/core';
 import { NPC, MovementPattern } from '../models/npc.model';
+import { OverWorld } from '../classes/overWorld';
 
 @Injectable({
   providedIn: 'root',
 })
 export class NpcService {
   listOfNpc: NPC[] = [
+    new NPC(12, 1, true),
     new NPC(),
     new NPC(),
     new NPC(),
@@ -14,8 +16,7 @@ export class NpcService {
     new NPC(),
     new NPC(),
     new NPC(),
-    new NPC(),
-    new NPC(5, 1),
+    new NPC()
   ];
 
   npcMovingIndex: MovementPattern = {
@@ -109,6 +110,60 @@ export class NpcService {
         break;
     }
   }
+  
+  chosenNpc !: NPC
+  render(overWorld : OverWorld) { 
+    for(let i = 0; i < this.listOfNpc.length; i++){
+      let npc = this.listOfNpc[i];
+      
+      if(!npc.isMoving){
+        let lengthOfMovementList = npc.movementQueue.length ;
+        if(lengthOfMovementList > 0){
+          this.movementOfNPC(npc.movementQueue[lengthOfMovementList - 1], npc);
+          npc.movementQueue.pop()
+        }
+      }
+
+      if(npc.frameIndex >= this.npcMovingIndex['right'].length - 1){
+        npc.isMoving = false;
+        npc.isMovingY = false;
+        npc.isMovingX = false;
+        npc.frameIndex = 0;
+      }else{
+        if(npc.isMoving){
+          npc.frameIndex++;
+        }
+      }
+
+      if(!npc.playable){
+        this.npcRandomWalk(npc)
+      }else{
+        this.chosenNpc = npc
+      }
+
+      // let maxFrameFire = 12;
+      // let currentFrameFire = 0;
+      if(this.chosenNpc){
+        overWorld.renderNpc(
+          i == 0 ? true : false,
+          "../../assets/img/chosen.png",
+          this.getCurrentPositionToDisplay(this.chosenNpc, this.chosenNpc.isMovingX, this.chosenNpc.previousX, this.chosenNpc.currentX),
+          this.getCurrentPositionToDisplay(this.chosenNpc, this.chosenNpc.isMovingY, this.chosenNpc.previousY, this.chosenNpc.currentY) ,
+          this.npcMovingIndex['right'][npc.frameIndex][1] * npc.frameWidth,
+          this.npcMovingIndex['right'][0][0] * npc.frameWidth
+        );  
+      }
+
+      overWorld.renderNpc(
+        i == 0 ? true : false,
+        "../../assets/img/npcAdam.png",
+        this.getCurrentPositionToDisplay(npc, npc.isMovingX, npc.previousX, npc.currentX),
+        this.getCurrentPositionToDisplay(npc, npc.isMovingY, npc.previousY, npc.currentY) ,
+        this.npcMovingIndex[npc.currentDirection][npc.frameIndex][1] * npc.frameWidth,
+        this.npcMovingIndex[npc.currentDirection][0][0] * npc.frameWidth
+      ); 
+    }
+  }
 
   getCurrentPositionToDisplay(
     npc: NPC,
@@ -119,9 +174,9 @@ export class NpcService {
     const EndPositionToDisplay = current * 12;
     if (moving) {
       if (EndPositionToDisplay < previous.value) {
-        return previous.value - npc.frameIndex + 1;
+        return previous.value - npc.frameIndex ;
       } else {
-        return previous.value + npc.frameIndex + 1;
+        return previous.value + npc.frameIndex ;
       }
     } else {
       previous.value = EndPositionToDisplay;
