@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { NPC, MovementPattern } from '../models/npc.model';
+import { OverWorld } from '../classes/overWorld';
 
 @Injectable({
   providedIn: 'root',
@@ -107,6 +108,41 @@ export class NpcService {
         break;
       default:
         break;
+    }
+  }
+
+  render(overWorld : OverWorld) { 
+    for(let i = 0; i < this.listOfNpc.length; i++){
+      let npc = this.listOfNpc[i];
+      // this.npcRandomWalk(npc)
+      
+      if(!npc.isMoving){
+        let lengthOfMovementList = npc.movementQueue.length ;
+        if(lengthOfMovementList > 0){
+          this.movementOfNPC(npc.movementQueue[lengthOfMovementList - 1], npc);
+          npc.movementQueue.pop()
+        }
+      }
+
+      if(npc.frameIndex >= this.npcMovingIndex['right'].length - 1){
+        npc.isMoving = false;
+        npc.isMovingY = false;
+        npc.isMovingX = false;
+        npc.frameIndex = 0;
+      }else{
+        if(npc.isMoving){
+          npc.frameIndex++;
+        }
+      }
+      
+      overWorld.renderNpc(
+        i == 0 ? true : false,
+        "../../assets/img/pixil-frame-0.png",
+        this.getCurrentPositionToDisplay(npc, npc.isMovingX, npc.previousX, npc.currentX),
+        this.getCurrentPositionToDisplay(npc, npc.isMovingY, npc.previousY, npc.currentY) ,
+        this.npcMovingIndex[npc.currentDirection][npc.frameIndex][1] * npc.frameWidth,
+        this.npcMovingIndex[npc.currentDirection][0][0] * npc.frameWidth
+        ); 
     }
   }
 
