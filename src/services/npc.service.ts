@@ -7,6 +7,7 @@ import { OverWorld } from '../classes/overWorld';
 })
 export class NpcService {
   listOfNpc: NPC[] = [
+    new NPC(12, 1, true),
     new NPC(),
     new NPC(),
     new NPC(),
@@ -15,8 +16,7 @@ export class NpcService {
     new NPC(),
     new NPC(),
     new NPC(),
-    new NPC(),
-    new NPC(5, 1),
+    new NPC()
   ];
 
   npcMovingIndex: MovementPattern = {
@@ -110,11 +110,11 @@ export class NpcService {
         break;
     }
   }
-
+  
+  chosenNpc !: NPC
   render(overWorld : OverWorld) { 
     for(let i = 0; i < this.listOfNpc.length; i++){
       let npc = this.listOfNpc[i];
-      this.npcRandomWalk(npc)
       
       if(!npc.isMoving){
         let lengthOfMovementList = npc.movementQueue.length ;
@@ -134,15 +134,34 @@ export class NpcService {
           npc.frameIndex++;
         }
       }
-      
+
+      if(!npc.playable){
+        this.npcRandomWalk(npc)
+      }else{
+        this.chosenNpc = npc
+      }
+
+      // let maxFrameFire = 12;
+      // let currentFrameFire = 0;
+      if(this.chosenNpc){
+        overWorld.renderNpc(
+          i == 0 ? true : false,
+          "../../assets/img/chosen.png",
+          this.getCurrentPositionToDisplay(this.chosenNpc, this.chosenNpc.isMovingX, this.chosenNpc.previousX, this.chosenNpc.currentX),
+          this.getCurrentPositionToDisplay(this.chosenNpc, this.chosenNpc.isMovingY, this.chosenNpc.previousY, this.chosenNpc.currentY) ,
+          this.npcMovingIndex['right'][npc.frameIndex][1] * npc.frameWidth,
+          this.npcMovingIndex['right'][0][0] * npc.frameWidth
+        );  
+      }
+
       overWorld.renderNpc(
         i == 0 ? true : false,
-        "../../assets/img/pixil-frame-0.png",
+        "../../assets/img/npcAdam.png",
         this.getCurrentPositionToDisplay(npc, npc.isMovingX, npc.previousX, npc.currentX),
         this.getCurrentPositionToDisplay(npc, npc.isMovingY, npc.previousY, npc.currentY) ,
         this.npcMovingIndex[npc.currentDirection][npc.frameIndex][1] * npc.frameWidth,
         this.npcMovingIndex[npc.currentDirection][0][0] * npc.frameWidth
-        ); 
+      ); 
     }
   }
 

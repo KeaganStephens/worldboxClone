@@ -15,7 +15,7 @@ export class NPC {
   playable: boolean;
   playerID?: string;
 
-  constructor(currentX: number = 10, currentY: number = 10) {
+  constructor(currentX: number = 10, currentY: number = 10, playable : boolean = false) {
     this.currentX = currentX;
     this.currentY = currentY;
     this.isMovingX = false;
@@ -27,6 +27,6 @@ export class NPC {
     this.movementQueue = [];
     this.previousX = { value: 0 };
     this.previousY = { value: 0 };
-    this.playable = false;
+    this.playable = playable;
   }
 }
