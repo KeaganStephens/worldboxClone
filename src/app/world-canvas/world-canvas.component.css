@@ -6,14 +6,11 @@
 .canvasContainer
 {
     position: relative;
-    width: 352px;
-    height: 198px;
-    border:solid blue 1px;
-
-    transform: scale(3);
+    /* transform: scale(3); */
 }
 
 .gameCanvas
 {
+    border:solid blue 1px;
     image-rendering: pixelated;
 }

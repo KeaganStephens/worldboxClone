@@ -4,9 +4,9 @@ export interface OverWorldNpcConfig {
   };
   
 export class OverWorld {
-  private element: HTMLElement;
-  private canvas: HTMLCanvasElement;
-  private ctx: CanvasRenderingContext2D;
+  element: HTMLElement;
+  canvas: HTMLCanvasElement;
+  ctx: CanvasRenderingContext2D;
 
   constructor(config: OverWorldNpcConfig) {
     this.element = config.element;
@@ -14,7 +14,8 @@ export class OverWorld {
     this.ctx = this.canvas.getContext('2d')!;
   }
 
-  init(): void {
+  clearCanvas(){ 
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); 
   }
 
   renderNpc(
@@ -46,10 +47,6 @@ export class OverWorld {
           );
     }
     hero.src = img;
-  }
-
-  clearCanvas(){
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
   }
 
 }
