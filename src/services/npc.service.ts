@@ -19,7 +19,7 @@ export class NpcService {
     new NPC()
   ];
 
-  npcMovingIndex: MovementPattern = {
+  npcMovingIndex: MovementPattern = { //todo: fix movement of npc, Grid is now set up as 10px while npc moves 12px 
     right: [
       [0, 0], [0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [0, 4], [0, 3], [0, 2], [0, 1], [0, 0],
     ],
@@ -143,16 +143,16 @@ export class NpcService {
 
       // let maxFrameFire = 12;
       // let currentFrameFire = 0;
-      if(this.chosenNpc){
-        overWorld.renderNpc(
-          i == 0 ? true : false,
-          "../../assets/img/chosen.png",
-          this.getCurrentPositionToDisplay(this.chosenNpc, this.chosenNpc.isMovingX, this.chosenNpc.previousX, this.chosenNpc.currentX),
-          this.getCurrentPositionToDisplay(this.chosenNpc, this.chosenNpc.isMovingY, this.chosenNpc.previousY, this.chosenNpc.currentY) ,
-          this.npcMovingIndex['right'][npc.frameIndex][1] * npc.frameWidth,
-          this.npcMovingIndex['right'][0][0] * npc.frameWidth
-        );  
-      }
+      // if(this.chosenNpc){
+      //   overWorld.renderNpc(
+      //     i == 0 ? true : false,
+      //     "../../assets/img/chosen.png",
+      //     this.getCurrentPositionToDisplay(this.chosenNpc, this.chosenNpc.isMovingX, this.chosenNpc.previousX, this.chosenNpc.currentX),
+      //     this.getCurrentPositionToDisplay(this.chosenNpc, this.chosenNpc.isMovingY, this.chosenNpc.previousY, this.chosenNpc.currentY) ,
+      //     this.npcMovingIndex['right'][npc.frameIndex][1] * npc.frameWidth,
+      //     this.npcMovingIndex['right'][0][0] * npc.frameWidth
+      //   );  
+      // }
 
       overWorld.renderNpc(
         i == 0 ? true : false,

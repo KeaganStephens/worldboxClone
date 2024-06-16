@@ -1,16 +1,26 @@
-.gameCanvas
-{
-    /* border:solid red 1px; */
-}
-
-.canvasContainer
-{
+.canvasContainer {
     position: relative;
-    /* transform: scale(3); */
+    width: 1080px;
+    height: 612px;
 }
 
-.gameCanvas
-{
-    border:solid blue 1px;
+.gameCanvas, .gameCanvasDraw, .gameCanvasGrid {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: solid blue 1px;
     image-rendering: pixelated;
+}
+
+.gameCanvas {
+    transform: translate(-50%, -50%) scale(2);
+}
+
+.gameCanvasDraw {
+    border-color: red;
+}
+
+#colorPicker{
+    position: fixed;
 }

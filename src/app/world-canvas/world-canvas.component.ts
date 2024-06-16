@@ -1,7 +1,8 @@
 import { Component, HostListener, OnInit, OnDestroy } from '@angular/core';
 import { OverWorld, OverWorldNpcConfig} from '../../classes/overWorld';
 import { NpcService } from '../../services/npc.service';
-import { TestDrawing } from '../../services/testDrawing';
+import { TestDrawing } from '../../services/testDrawing.service';
+import { worldGridCells } from '../../services/gridCells.service';
 
 @Component({
   selector: 'app-world-canvas',
@@ -17,7 +18,8 @@ export class WorldCanvasComponent implements OnInit {
 
   constructor(
     private npcService: NpcService,
-    private drawing: TestDrawing
+    private drawing: TestDrawing,
+    private worldGrid : worldGridCells
   ){}
 
   ngOnInit(): void {
@@ -36,11 +38,16 @@ export class WorldCanvasComponent implements OnInit {
     this.npcService.moveNpc(this.npcService.listOfNpc[0], event.key)
   }
 
+  @HostListener('click', ['$event'])
+  gridClick(event: MouseEvent): void {
+    this.worldGrid.clickedOnGrid(event);
+  }
+
   @HostListener('mousedown', ['$event'])
   startPainting(event: MouseEvent): void {
     this.drawing.startPainting(event)
   }
-
+  
   @HostListener('mouseup')
   stopPainting(): void {
     this.drawing.stopPainting()
@@ -52,12 +59,21 @@ export class WorldCanvasComponent implements OnInit {
   }
 
   initializeOverWorld() {
-    const overWorldConfig: OverWorldNpcConfig = {
+    const overNpcConfig: OverWorldNpcConfig = {
       element: document.querySelector('.canvasContainer') as HTMLElement,
       canvas: 'gameCanvas',
     };
-    this.overWorld = new OverWorld(overWorldConfig);
-    this.drawing.initDrawing(this.overWorld)
+    const overWorldConfig: OverWorldNpcConfig = {
+      element: document.querySelector('.canvasContainer') as HTMLElement,
+      canvas: 'gameCanvasDraw',
+    };
+    const overWorldGridCells: OverWorldNpcConfig = {
+      element: document.querySelector('.canvasContainer') as HTMLElement,
+      canvas: 'gameCanvasGrid',
+    };
+    this.overWorld = new OverWorld(overNpcConfig);
+    this.drawing.initDrawing(new OverWorld(overWorldConfig))
+    this.worldGrid.initWorldGrid(new OverWorld(overWorldGridCells))
   }
 
   startGameLoop() { 
@@ -74,6 +90,11 @@ export class WorldCanvasComponent implements OnInit {
     this.windowWidth = window.innerWidth;
     this.windowHeight = window.innerHeight;
     this.drawing.getWindowDimensions(this.windowWidth, this.windowHeight)
+  }
+
+  onColorChange(event: Event) {
+    const color = (event.target as HTMLInputElement).value;
+    this.drawing.setStrokeStyle(color);
   }
 
 }
