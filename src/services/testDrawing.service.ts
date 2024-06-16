@@ -13,17 +13,22 @@ export class TestDrawing {
   windowHeight!: number;
   startOfCanvasX!: number;
   startOfCanvasY!: number;
+  private strokeStyle: string = 'blue';
 
   initDrawing(overWorld: OverWorld): void {
     this.overWorld = overWorld;
+  }
+
+  setStrokeStyle(color: string) {
+    this.strokeStyle = color;
   }
 
   getWindowDimensions(windowWidth : number, windowHeight: number){
     this.windowWidth = windowWidth;
     this.windowHeight = windowHeight;
     // width="360" height="204" 
-    this.startOfCanvasX = (windowWidth - 1080) / 2 
-    this.startOfCanvasY = (windowHeight - 612) / 2 
+    this.startOfCanvasX = (windowWidth - 720) / 2 
+    this.startOfCanvasY = (windowHeight - 720) / 2 
   }
 
   getPosition(event: MouseEvent | TouchEvent): void {
@@ -51,9 +56,9 @@ export class TestDrawing {
     // debugger
     if (!this.paint) return;
     this.overWorld.ctx.beginPath();
-    this.overWorld.ctx.lineWidth = 10;
-    this.overWorld.ctx.lineCap = 'round';
-    this.overWorld.ctx.strokeStyle = 'blue';
+    this.overWorld.ctx.lineWidth = 30;
+    this.overWorld.ctx.lineCap = 'square';
+    this.overWorld.ctx.strokeStyle = this.strokeStyle;
     this.overWorld.ctx.moveTo(this.coord.x, this.coord.y);
     this.getPosition(event);
     this.overWorld.ctx.lineTo(this.coord.x, this.coord.y);
