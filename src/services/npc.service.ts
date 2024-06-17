@@ -1,11 +1,14 @@
 import { Injectable } from '@angular/core';
 import { NPC, MovementPattern } from '../models/npc.model';
 import { OverWorld } from '../classes/overWorld';
+import { worldGridCells } from './gridCells.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class NpcService {
+
+  constructor(private gridCells: worldGridCells){}
   listOfNpc: NPC[] = [
     new NPC(12, 1, true),
     new NPC(),
@@ -81,7 +84,25 @@ export class NpcService {
 
   checkValidityOfMovement(direction: string, npc: NPC) {
     const lengthOfMovementList = npc.movementQueue.length;
-    if (npc.movementQueue[lengthOfMovementList - 1] !== direction) {
+    let gridIndex : any
+    switch (direction) {
+      case 'up':
+        gridIndex = this.gridCells.getDisplayGrid(npc.currentX, npc.currentY - 1);
+        break;
+      case 'down':
+        gridIndex = this.gridCells.getDisplayGrid(npc.currentX, npc.currentY + 1);
+        break;
+      case 'left':
+        gridIndex = this.gridCells.getDisplayGrid(npc.currentX - 1, npc.currentY);
+        
+        break;
+      case 'right':
+        gridIndex = this.gridCells.getDisplayGrid(npc.currentX + 1, npc.currentY);
+        break;
+      default:
+        break;
+    }
+    if (npc.movementQueue[lengthOfMovementList - 1] !== direction && gridIndex.traversable) {
       npc.movementQueue.pop();
       npc.movementQueue.push(direction);
     }
@@ -171,7 +192,7 @@ export class NpcService {
     previous: any,
     current: number
   ) {
-    const EndPositionToDisplay = current * 12;
+    const EndPositionToDisplay = current * 10;
     if (moving) {
       if (EndPositionToDisplay < previous.value) {
         return previous.value - npc.frameIndex ;

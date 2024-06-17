@@ -40,8 +40,8 @@ export class OverWorld {
             topCut, //top  cut
             12, //width of cut
             12, //height of cut 
-            currentX, //x position on canvas 
-            currentY, //y position on canvas
+            currentX - 1, //x position on canvas 
+            currentY - 2, //y position on canvas
             12, //size to draw
             12 //size to draw
           );

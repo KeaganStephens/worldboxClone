@@ -1,10 +1,13 @@
 import { Injectable, OnDestroy, OnInit } from '@angular/core';
 import { OverWorld } from '../classes/overWorld';
+import { worldGridCells } from './gridCells.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class TestDrawing {
+
+  constructor(private GridCells: worldGridCells){}
 
   overWorld!: OverWorld;
   coord = { x: 0, y: 0 };
@@ -13,7 +16,7 @@ export class TestDrawing {
   windowHeight!: number;
   startOfCanvasX!: number;
   startOfCanvasY!: number;
-  private strokeStyle: string = 'blue';
+  private strokeStyle: string = 'lightblue';
 
   initDrawing(overWorld: OverWorld): void {
     this.overWorld = overWorld;
@@ -26,19 +29,21 @@ export class TestDrawing {
   getWindowDimensions(windowWidth : number, windowHeight: number){
     this.windowWidth = windowWidth;
     this.windowHeight = windowHeight;
-    // width="360" height="204" 
+    // width="360" height="204" * 2 Todo: make a more robust why to change width 
     this.startOfCanvasX = (windowWidth - 720) / 2 
     this.startOfCanvasY = (windowHeight - 720) / 2 
   }
 
   getPosition(event: MouseEvent | TouchEvent): void {
+    // debugger
+    const rect = this.overWorld.canvas.getBoundingClientRect();
     if (event instanceof MouseEvent) {
-      this.coord.x = event.clientX - this.startOfCanvasX
-      this.coord.y = event.clientY - this.startOfCanvasY
+      this.coord.x = event.clientX - rect.left;
+      this.coord.y = event.clientY - rect.top;
     } else if (event instanceof TouchEvent) {
       const touch = event.touches[0];
-      this.coord.x = touch.clientX 
-      this.coord.y = touch.clientY 
+      this.coord.x = touch.clientX - rect.left;
+      this.coord.y = touch.clientY - rect.top;
     }
   }
 
@@ -52,16 +57,9 @@ export class TestDrawing {
     this.paint = false;
   }
 
-  sketch(event: MouseEvent | TouchEvent): void {
+  sketch(event: MouseEvent): void {
     // debugger
     if (!this.paint) return;
-    this.overWorld.ctx.beginPath();
-    this.overWorld.ctx.lineWidth = 30;
-    this.overWorld.ctx.lineCap = 'square';
-    this.overWorld.ctx.strokeStyle = this.strokeStyle;
-    this.overWorld.ctx.moveTo(this.coord.x, this.coord.y);
-    this.getPosition(event);
-    this.overWorld.ctx.lineTo(this.coord.x, this.coord.y);
-    this.overWorld.ctx.stroke();
+    this.GridCells.clickedOnGrid(event, this.overWorld, this.strokeStyle, 0);
   }
 }

@@ -33,29 +33,34 @@ export class WorldCanvasComponent implements OnInit {
     this.windowDimensions()
   }
 
-  @HostListener('window:keydown', ['$event'])
+  @HostListener('window:keydown', ['$event']) //todo: fix the way movement of chosen npc works, when holding down the moving key and then letting go. It moves one more than expected.
   handleKeyDown(event: KeyboardEvent) {
     this.npcService.moveNpc(this.npcService.listOfNpc[0], event.key)
   }
 
   @HostListener('click', ['$event'])
   gridClick(event: MouseEvent): void {
-    this.worldGrid.clickedOnGrid(event);
+    this.drawing.startPainting(event);
+    this.drawing.sketch(event);
+    this.drawing.stopPainting();
   }
 
   @HostListener('mousedown', ['$event'])
-  startPainting(event: MouseEvent): void {
-    this.drawing.startPainting(event)
+  @HostListener('touchstart', ['$event'])
+  startPainting(event: MouseEvent | TouchEvent): void {
+    this.drawing.startPainting(event);
   }
-  
+
   @HostListener('mouseup')
+  @HostListener('touchend')
   stopPainting(): void {
-    this.drawing.stopPainting()
+    this.drawing.stopPainting();
   }
 
   @HostListener('mousemove', ['$event'])
+  @HostListener('touchmove', ['$event'])
   sketch(event: MouseEvent): void {
-    this.drawing.sketch(event)
+    this.drawing.sketch(event);
   }
 
   initializeOverWorld() {
