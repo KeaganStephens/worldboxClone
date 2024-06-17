@@ -10,6 +10,7 @@ export class worldGridCells {
     L = 20;
     H = 20;
     O = 0;
+    displayGrid : boolean = true;
 
     canvasWidth = 720;
     canvasHeight = 720;
@@ -17,48 +18,81 @@ export class worldGridCells {
     numHorizontalTiles = this.canvasWidth / this.L;
     numVerticalTiles = this.canvasHeight / this.H;
 
+    mapOfTiles : any = {}
+
     initWorldGrid(overWorld: OverWorld): void {
         this.overWorld = overWorld;
         for (let ty = 0; ty < this.numVerticalTiles; ty++) {
             for (let tx = 0; tx < this.numHorizontalTiles; tx++) {
-                this.drawTile(ty, tx);
+                let x = `x${tx}`
+                let y = `y${ty}`
+                if(this.mapOfTiles[x+y] === undefined){
+                    this.mapOfTiles[x+y] = {traversable: false}
+                }else{
+                    debugger
+                }
+                this.drawTile(this.overWorld,ty, tx);
             }
         }
     }
 
-    drawTile(ty : number, tx : number, color : string = 'white') {
-        const topLeft = { x: (this.numVerticalTiles - ty) * this.O + tx * this.L, y: ty * this.H };
-        const bottomLeft = { x: (this.numVerticalTiles - ty - 1) * this.O + tx * this.L, y: (ty + 1) * this.H };
-        const topRight = { x: (this.numVerticalTiles - ty) * this.O + (tx + 1) * this.L, y: ty * this.H };
-        const bottomRight = { x: (this.numVerticalTiles - ty - 1) * this.O + (tx + 1) * this.L, y: (ty + 1) *this.H };
+    drawTile(overWorld: OverWorld,ty : number, tx : number, color : string = 'transparent', lineColor : string = 'black', size : number = 0) {
+        // debugger
+        const topLeft = {
+            x: ((this.numVerticalTiles - ty) * this.O + tx * this.L) - (size * 20), 
+            y: (ty * this.H) - (size * 20)
+        };
+        const bottomLeft = { 
+            x: ((this.numVerticalTiles - ty - 1) * this.O + tx * this.L) - (size * 20),
+            y: ((ty + 1) * this.H) + (size * 20)
+        };
+        const topRight = { 
+            x: ((this.numVerticalTiles - ty) * this.O + (tx + 1) * this.L) + (size * 20), 
+            y: (ty * this.H) - (size * 20)
+        };
+        const bottomRight = { 
+            x: ((this.numVerticalTiles - ty - 1) * this.O + (tx + 1) * this.L) + (size * 20), 
+            y: ((ty + 1) * this.H) + (size * 20)
+        };
 
-        this.overWorld.ctx.beginPath();
-        this.overWorld.ctx.moveTo(topLeft.x, topLeft.y);
-        this.overWorld.ctx.lineTo(topRight.x, topRight.y);
-        this.overWorld.ctx.lineTo(bottomRight.x, bottomRight.y);
-        this.overWorld.ctx.lineTo(bottomLeft.x, bottomLeft.y);
-        this.overWorld.ctx.closePath();
-        this.overWorld.ctx.fillStyle = color;
-        this.overWorld.ctx.fill();
-        this.overWorld.ctx.stroke();
+        overWorld.ctx.beginPath();
+        overWorld.ctx.moveTo(topLeft.x, topLeft.y);
+        overWorld.ctx.lineTo(topRight.x, topRight.y);
+        overWorld.ctx.lineTo(bottomRight.x, bottomRight.y);
+        overWorld.ctx.lineTo(bottomLeft.x, bottomLeft.y);
+        overWorld.ctx.closePath();
+        overWorld.ctx.fillStyle = color;
+        overWorld.ctx.fill();
+        if(this.displayGrid){
+            overWorld.ctx.strokeStyle = lineColor; 
+            overWorld.ctx.stroke();
+        }
     }
 
     getTileCoordinates(x : number, y : number) {
         const ty = Math.floor(y / this.H);
-        const tx = Math.floor((x - (this.numVerticalTiles - (y / this.H)) * this.O) / this.L);
-        return { ty, tx };
+        const tx = Math.floor(
+            // (x - (this.numVerticalTiles - (y / this.H)) * this.O) / this.L
+            x / this.H
+            );
+        return { tx, ty };
     }
 
-    // Add event listener to handle drawing on the canvas
-    clickedOnGrid(event: MouseEvent){
+    clickedOnGrid(event: MouseEvent, overWorld: OverWorld, color: string, size : number){ //Todo: rename overWord to more fitting name
+        // debugger
         const rect = this.overWorld.canvas.getBoundingClientRect();
         const x = event.clientX - rect.left;
         const y = event.clientY - rect.top;
 
-        const { ty, tx } = this.getTileCoordinates(x, y);
+        const { tx, ty } = this.getTileCoordinates(x, y);
         if (ty >= 0 && ty < this.numVerticalTiles && tx >= 0 && tx < this.numHorizontalTiles) {
-            this.drawTile(ty, tx, 'lightblue'); // Change color to lightblue on click
+            this.mapOfTiles[`x${tx}y${ty}`].traversable = true;
+            this.drawTile(overWorld, ty, tx, color, color, size);
         }
+    }
+
+    getDisplayGrid(x: number, y : number){
+        return this.mapOfTiles[`x${x}y${y}`]
     }
 
 }
