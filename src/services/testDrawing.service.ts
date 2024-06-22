@@ -1,13 +1,14 @@
 import { Injectable, OnDestroy, OnInit } from '@angular/core';
 import { OverWorld } from '../classes/overWorld';
 import { worldGridCells } from './gridCells.service';
+import { saveMap } from '../classes/mapSave';
 
 @Injectable({
   providedIn: 'root',
 })
 export class TestDrawing {
 
-  constructor(private GridCells: worldGridCells){}
+  constructor(private GridCells: worldGridCells, private map : saveMap){}
 
   overWorld!: OverWorld;
   coord = { x: 0, y: 0 };
@@ -20,6 +21,8 @@ export class TestDrawing {
 
   initDrawing(overWorld: OverWorld): void {
     this.overWorld = overWorld;
+    // debugger
+    this.GridCells.drawGrid(overWorld, this.map.mapOfTiles)
   }
 
   setStrokeStyle(color: string) {
@@ -62,4 +65,8 @@ export class TestDrawing {
     if (!this.paint) return;
     this.GridCells.clickedOnGrid(event, this.overWorld, this.strokeStyle, 0);
   }
+
+  // getCanvas(){
+  //   return this.overWorld
+  // }
 }
