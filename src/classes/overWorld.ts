@@ -49,4 +49,36 @@ export class OverWorld {
     hero.src = img;
   }
 
+  renderFloorTile(
+    overWord : OverWorld, 
+    clearCanvas : boolean = false,
+    img : string = "../../assets/img/dirtBlock.png",
+    currentX : number = 0,
+    currentY : number = 0,
+    leftCut : number = 0,
+    topCut : number = 0,
+    widthOfCut : number = 18,  
+    heightOfCut : number = 18,
+    sizeToDraw1 : number = 18 * 1.7,
+    sizeToDraw2 : number = 18 * 1.7
+  ){ //pass in parameters for npc to enhance multiple npc 
+  const hero = new Image();
+  hero.onload = () => {
+    if(clearCanvas) overWord.ctx.clearRect(0, 0, overWord.canvas.width, overWord.canvas.height); 
+    overWord.ctx.imageSmoothingEnabled = false; 
+    overWord.ctx.drawImage(
+        hero,
+          leftCut, //left cut
+          topCut, //top  cut
+          widthOfCut, //width of cut
+          heightOfCut, //height of cut 
+          currentX - 5, //x position on canvas 
+          currentY - 5, //y position on canvas
+          sizeToDraw1, //size to draw
+          sizeToDraw2 //size to draw
+        );
+  }
+  hero.src = img;
+}
+
 }

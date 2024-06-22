@@ -43,14 +43,18 @@ export class worldGridCells {
                     }
                     this.drawTile(overWorld,ty, tx , mapOfTiles[x+y].tileType);
                 }else{
+                    // // debugger
                     this.drawTile(overWorld,ty, tx , mapOfTiles[x+y].tileType);
+                    if( mapOfTiles[x+y].tileType !== 'transparent'){
+                        overWorld.renderFloorTile(overWorld, false, '../../assets/img/dirtBlock.png',tx * 20, ty * 20)
+                    }
                 }
                 
             }
         }
     }
 
-    drawTile(overWorld: OverWorld,ty : number, tx : number, color : string = 'transparent', lineColor : string = 'black', size : number = 0) {
+    drawTile(overWorld: OverWorld,ty : number, tx : number, color : string = 'transparent', lineColor : string = 'black', size : number = 0, biome : boolean = true) {
         // debugger
         const topLeft = {
             x: ((this.numVerticalTiles - ty) * this.O + tx * this.L) - (size * 20), 
@@ -73,7 +77,7 @@ export class worldGridCells {
         overWorld.ctx.moveTo(topLeft.x, topLeft.y);
         overWorld.ctx.lineTo(topRight.x, topRight.y);
         overWorld.ctx.lineTo(bottomRight.x, bottomRight.y);
-        overWorld.ctx.lineTo(bottomLeft.x, bottomLeft.y);
+        overWorld.ctx.lineTo(bottomLeft.x, bottomLeft.y);    
         overWorld.ctx.closePath();
         overWorld.ctx.fillStyle = color;
         overWorld.ctx.fill();
@@ -102,6 +106,7 @@ export class worldGridCells {
         if (ty >= 0 && ty < this.numVerticalTiles && tx >= 0 && tx < this.numHorizontalTiles) {
             this.mapOfTiles[`x${tx}y${ty}`].traversable = true;
             this.mapOfTiles[`x${tx}y${ty}`].tileType = color;
+            overWorld.renderFloorTile(overWorld, false, '../../assets/img/dirtBlock.png',tx * 20, ty * 20)
             this.drawTile(overWorld, ty, tx, color, color, size);
         }
     }
