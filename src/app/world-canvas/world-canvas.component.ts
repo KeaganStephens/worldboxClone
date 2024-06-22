@@ -64,6 +64,7 @@ export class WorldCanvasComponent implements OnInit {
   }
 
   initializeOverWorld() {
+    // debugger
     const overNpcConfig: OverWorldNpcConfig = {
       element: document.querySelector('.canvasContainer') as HTMLElement,
       canvas: 'gameCanvas',
