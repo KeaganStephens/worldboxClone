@@ -1,16 +1,20 @@
 import { Injectable, OnDestroy, OnInit } from '@angular/core';
 import { OverWorld } from '../classes/overWorld';
+import { saveMap } from '../classes/mapSave';
+import { TestDrawing } from './testDrawing.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class worldGridCells {
 
+    constructor(private saveMap : saveMap){}
+
     overWorld!: OverWorld;
     L = 20;
     H = 20;
     O = 0;
-    displayGrid : boolean = true;
+    displayGrid : boolean = !true;
 
     canvasWidth = 720;
     canvasHeight = 720;
@@ -21,17 +25,27 @@ export class worldGridCells {
     mapOfTiles : any = {}
 
     initWorldGrid(overWorld: OverWorld): void {
+        // this.mapOfTiles = this.map.mapOfTiles
         this.overWorld = overWorld;
+        this.drawGrid(overWorld, this.mapOfTiles)
+        this.mapOfTiles = this.saveMap.mapOfTiles
+    }
+
+    drawGrid(overWorld : OverWorld, mapOfTiles : any){
         for (let ty = 0; ty < this.numVerticalTiles; ty++) {
             for (let tx = 0; tx < this.numHorizontalTiles; tx++) {
                 let x = `x${tx}`
                 let y = `y${ty}`
-                if(this.mapOfTiles[x+y] === undefined){
-                    this.mapOfTiles[x+y] = {traversable: false}
+                if(mapOfTiles[x+y] === undefined){
+                    mapOfTiles[x+y] = {
+                        traversable: false,
+                        tileType: 'transparent'
+                    }
+                    this.drawTile(overWorld,ty, tx , mapOfTiles[x+y].tileType);
                 }else{
-                    debugger
+                    this.drawTile(overWorld,ty, tx , mapOfTiles[x+y].tileType);
                 }
-                this.drawTile(this.overWorld,ty, tx);
+                
             }
         }
     }
@@ -87,6 +101,7 @@ export class worldGridCells {
         const { tx, ty } = this.getTileCoordinates(x, y);
         if (ty >= 0 && ty < this.numVerticalTiles && tx >= 0 && tx < this.numHorizontalTiles) {
             this.mapOfTiles[`x${tx}y${ty}`].traversable = true;
+            this.mapOfTiles[`x${tx}y${ty}`].tileType = color;
             this.drawTile(overWorld, ty, tx, color, color, size);
         }
     }
