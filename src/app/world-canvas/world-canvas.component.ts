@@ -15,6 +15,7 @@ export class WorldCanvasComponent implements OnInit {
   private overWorld!: OverWorld;
   windowWidth!: number;
   windowHeight!: number;
+  activeKeys: Set<string> = new Set();
 
   constructor(
     private npcService: NpcService,
@@ -33,9 +34,51 @@ export class WorldCanvasComponent implements OnInit {
     this.windowDimensions()
   }
 
-  @HostListener('window:keydown', ['$event']) //todo: fix the way movement of chosen npc works, when holding down the moving key and then letting go. It moves one more than expected.
+  // @HostListener('window:keydown', ['$event']) //todo: fix the way movement of chosen npc works, when holding down the moving key and then letting go. It moves one more than expected.
+  // handleKeyDown(event: KeyboardEvent) {
+  //   console.log(event.key)
+  //   this.npcService.moveNpc(this.npcService.listOfNpc[0], event.key)
+  // }
+
+  @HostListener('window:keydown', ['$event']) 
   handleKeyDown(event: KeyboardEvent) {
-    this.npcService.moveNpc(this.npcService.listOfNpc[0], event.key)
+    this.activeKeys.add(event.key.toLowerCase());
+    this.handleMovement();
+  }
+
+  @HostListener('window:keyup', ['$event']) 
+  handleKeyUp(event: KeyboardEvent) {
+    this.activeKeys.delete(event.key.toLowerCase());
+  }
+
+  handleMovement() {
+    const npc = this.npcService.listOfNpc[0];
+    const keys = Array.from(this.activeKeys);
+    
+    // Log keys for debugging
+    console.log(keys);
+
+    if (keys.includes('arrowup') || keys.includes('w')) {
+      if (keys.includes('arrowright') || keys.includes('d')) {
+        this.npcService.moveNpc(npc, 'ArrowUpArrowRight');
+      } else if (keys.includes('arrowleft') || keys.includes('a')) {
+        this.npcService.moveNpc(npc, 'ArrowUpArrowLeft');
+      } else {
+        this.npcService.moveNpc(npc, 'ArrowUp');
+      }
+    } else if (keys.includes('arrowdown') || keys.includes('s')) {
+      if (keys.includes('arrowright') || keys.includes('d')) {
+        this.npcService.moveNpc(npc, 'ArrowDownArrowRight');
+      } else if (keys.includes('arrowleft') || keys.includes('a')) {
+        this.npcService.moveNpc(npc, 'ArrowDownArrowLeft');
+      } else {
+        this.npcService.moveNpc(npc, 'ArrowDown');
+      }
+    } else if (keys.includes('arrowright') || keys.includes('d')) {
+      this.npcService.moveNpc(npc, 'ArrowRight');
+    } else if (keys.includes('arrowleft') || keys.includes('a')) {
+      this.npcService.moveNpc(npc, 'ArrowLeft');
+    }
   }
 
   @HostListener('click', ['$event'])
