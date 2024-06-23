@@ -14,8 +14,9 @@ export class NPC {
   previousY: { value: number };
   playable: boolean;
   playerID?: string;
+  state: NPCState;
 
-  constructor(currentX: number = 10, currentY: number = 10, playable : boolean = false) {
+  constructor(currentX: number = 10, currentY: number = 10, playable : boolean = false, state : NPCState = NPCState.Idle ) {
     this.currentX = currentX;
     this.currentY = currentY;
     this.isMovingX = false;
@@ -28,5 +29,12 @@ export class NPC {
     this.previousX = { value: 0 };
     this.previousY = { value: 0 };
     this.playable = playable;
+    this.state = state;
   }
+}
+
+export enum NPCState {
+  Idle,
+  Wandering,
+  Seeking
 }
