@@ -1,4 +1,4 @@
-import { Component, HostListener, OnInit, OnDestroy } from '@angular/core';
+import { Component, HostListener, OnInit, OnDestroy, ElementRef, ViewChild, Renderer2 } from '@angular/core';
 import { OverWorld, OverWorldNpcConfig} from '../../classes/overWorld';
 import { NpcService } from '../../services/npc.service';
 import { TestDrawing } from '../../services/testDrawing.service';
@@ -13,25 +13,46 @@ import { worldGridCells } from '../../services/gridCells.service';
 })
 export class WorldCanvasComponent implements OnInit {
   private overWorld!: OverWorld;
-  windowWidth!: number;
-  windowHeight!: number;
+  // windowWidth!: number;
+  // windowHeight!: number;
   activeKeys: Set<string> = new Set();
+  scaleValue = 2; 
+
+  @ViewChild('gameCanvas') gameCanvas!: ElementRef;
+  @ViewChild('gameCanvasDraw') gameCanvasDraw!: ElementRef;
+  @ViewChild('gameCanvasGrid') gameCanvasGrid!: ElementRef;
 
   constructor(
     private npcService: NpcService,
     private drawing: TestDrawing,
-    private worldGrid : worldGridCells
+    private worldGrid : worldGridCells,
+    private renderer: Renderer2
   ){}
 
   ngOnInit(): void {
+    this.scaleValue = this.worldGrid.getScaleValue()
     this.initializeOverWorld();
-    this.windowDimensions()
+    // this.windowDimensions()
     this.startGameLoop();
+  }
+
+  ngAfterViewInit(): void {
+    this.scaleCanvasAll();
+  }
+
+  scaleCanvasAll() {
+    this.scaleCanvas(this.gameCanvas, this.scaleValue);
+    this.scaleCanvas(this.gameCanvasDraw, this.scaleValue);
+    this.scaleCanvas(this.gameCanvasGrid, this.scaleValue);
+  }
+
+  scaleCanvas(canvas: ElementRef, scale: number) {
+    this.renderer.setStyle(canvas.nativeElement, 'transform', `translate(-50%, -50%) scale(${scale})`);
   }
 
   @HostListener('window:resize', ['$event'])
   onResize(event: Event) {
-    this.windowDimensions()
+    // this.windowDimensions()
   }
 
   // @HostListener('window:keydown', ['$event']) //todo: fix the way movement of chosen npc works, when holding down the moving key and then letting go. It moves one more than expected.
@@ -135,15 +156,18 @@ export class WorldCanvasComponent implements OnInit {
     gameLoop();
   }
 
-  windowDimensions(){
-    this.windowWidth = window.innerWidth;
-    this.windowHeight = window.innerHeight;
-    this.drawing.getWindowDimensions(this.windowWidth, this.windowHeight)
-  }
+  // windowDimensions(){
+  //   this.windowWidth = window.innerWidth;
+  //   this.windowHeight = window.innerHeight;
+  //   this.drawing.getWindowDimensions(this.windowWidth, this.windowHeight)
+  // }
 
   onColorChange(event: Event) {
     const color = (event.target as HTMLInputElement).value;
     this.drawing.setStrokeStyle(color);
   }
 
+  getCurrentScale(){
+    return this.scaleValue;
+  }
 }

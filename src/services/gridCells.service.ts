@@ -10,14 +10,15 @@ export class worldGridCells {
 
     constructor(private saveMap : saveMap){}
 
+    scaleValue =  0.5;
     overWorld!: OverWorld;
-    L = 20;
-    H = 20;
+    L = 10;
+    H = this.L;
     O = 0;
     displayGrid : boolean = !true;
 
-    canvasWidth = 720;
-    canvasHeight = 720;
+    canvasWidth = 360;
+    canvasHeight = 360;
 
     numHorizontalTiles = this.canvasWidth / this.L;
     numVerticalTiles = this.canvasHeight / this.H;
@@ -46,7 +47,7 @@ export class worldGridCells {
                     // // debugger
                     this.drawTile(overWorld,ty, tx , mapOfTiles[x+y].tileType);
                     if( mapOfTiles[x+y].tileType !== 'transparent'){
-                        overWorld.renderFloorTile(overWorld, false, '../../assets/img/dirtBlock.png',tx * 20, ty * 20)
+                        overWorld.renderFloorTile(overWorld, false, '../../assets/img/dirtBlock.png',tx * this.L, ty * this.L)
                     }
                 }
                 
@@ -57,20 +58,20 @@ export class worldGridCells {
     drawTile(overWorld: OverWorld,ty : number, tx : number, color : string = 'transparent', lineColor : string = 'black', size : number = 0, biome : boolean = true) {
         // debugger
         const topLeft = {
-            x: ((this.numVerticalTiles - ty) * this.O + tx * this.L) - (size * 20), 
-            y: (ty * this.H) - (size * 20)
+            x: ((this.numVerticalTiles - ty) * this.O + tx * this.L) - (size * this.L), 
+            y: (ty * this.H) - (size * this.L)
         };
         const bottomLeft = { 
-            x: ((this.numVerticalTiles - ty - 1) * this.O + tx * this.L) - (size * 20),
-            y: ((ty + 1) * this.H) + (size * 20)
+            x: ((this.numVerticalTiles - ty - 1) * this.O + tx * this.L) - (size * this.L),
+            y: ((ty + 1) * this.H) + (size * this.L)
         };
         const topRight = { 
-            x: ((this.numVerticalTiles - ty) * this.O + (tx + 1) * this.L) + (size * 20), 
-            y: (ty * this.H) - (size * 20)
+            x: ((this.numVerticalTiles - ty) * this.O + (tx + 1) * this.L) + (size * this.L), 
+            y: (ty * this.H) - (size * this.L)
         };
         const bottomRight = { 
-            x: ((this.numVerticalTiles - ty - 1) * this.O + (tx + 1) * this.L) + (size * 20), 
-            y: ((ty + 1) * this.H) + (size * 20)
+            x: ((this.numVerticalTiles - ty - 1) * this.O + (tx + 1) * this.L) + (size * this.L), 
+            y: ((ty + 1) * this.H) + (size * this.L)
         };
 
         overWorld.ctx.beginPath();
@@ -99,14 +100,14 @@ export class worldGridCells {
     clickedOnGrid(event: MouseEvent, overWorld: OverWorld, color: string, size : number){ //Todo: rename overWord to more fitting name
         // debugger
         const rect = this.overWorld.canvas.getBoundingClientRect();
-        const x = event.clientX - rect.left;
-        const y = event.clientY - rect.top;
+        const x = (event.clientX - rect.left) / this.scaleValue;
+        const y = (event.clientY - rect.top) / this.scaleValue;
 
         const { tx, ty } = this.getTileCoordinates(x, y);
         if (ty >= 0 && ty < this.numVerticalTiles && tx >= 0 && tx < this.numHorizontalTiles) {
             this.mapOfTiles[`x${tx}y${ty}`].traversable = true;
             this.mapOfTiles[`x${tx}y${ty}`].tileType = color;
-            overWorld.renderFloorTile(overWorld, false, '../../assets/img/dirtBlock.png',tx * 20, ty * 20)
+            overWorld.renderFloorTile(overWorld, false, '../../assets/img/dirtBlock.png',tx * this.L, ty * this.L)
             this.drawTile(overWorld, ty, tx, color, color, size);
         }
     }
@@ -115,4 +116,11 @@ export class worldGridCells {
         return this.mapOfTiles[`x${x}y${y}`]
     }
 
+    getScaleValue(){
+        return this.scaleValue;
+    }
+
+    updateScaleValue(value : number){
+        this.scaleValue =  value;
+    }
 }
