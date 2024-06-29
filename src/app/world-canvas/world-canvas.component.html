@@ -1,6 +1,7 @@
-<div class="canvasContainer" >
-    <canvas class="gameCanvasDraw" width="720" height="720" ></canvas>
-    <canvas class="gameCanvas" width="360" height="360" ></canvas>
-    <canvas class="gameCanvasGrid" width="720" height="720" ></canvas>
-</div>
-<input type="color" id="colorPicker" id="colorPicker" (input)="onColorChange($event)">
+<div class="canvasContainer">
+    <canvas #gameCanvasDraw class="gameCanvasDraw" width="360" height="360"></canvas>
+    <canvas #gameCanvas class="gameCanvas" width="360" height="360"></canvas>
+    <canvas #gameCanvasGrid class="gameCanvasGrid" width="360" height="360"></canvas>
+  </div>
+  <input type="color" id="colorPicker" (input)="onColorChange($event)">
+  

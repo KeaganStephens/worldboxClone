@@ -29,13 +29,13 @@ export class TestDrawing {
     this.strokeStyle = color;
   }
 
-  getWindowDimensions(windowWidth : number, windowHeight: number){
-    this.windowWidth = windowWidth;
-    this.windowHeight = windowHeight;
-    // width="360" height="204" * 2 Todo: make a more robust why to change width 
-    this.startOfCanvasX = (windowWidth - 720) / 2 
-    this.startOfCanvasY = (windowHeight - 720) / 2 
-  }
+  // getWindowDimensions(windowWidth : number, windowHeight: number){
+  //   this.windowWidth = windowWidth;
+  //   this.windowHeight = windowHeight;
+  //   // width="360" height="204" * 2 Todo: make a more robust why to change width 
+  //   this.startOfCanvasX = (windowWidth - 720) / 2 
+  //   this.startOfCanvasY = (windowHeight - 720) / 2 
+  // }
 
   getPosition(event: MouseEvent | TouchEvent): void {
     // debugger

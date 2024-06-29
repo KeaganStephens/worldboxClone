@@ -59,8 +59,8 @@ export class OverWorld {
     topCut : number = 0,
     widthOfCut : number = 18,  
     heightOfCut : number = 18,
-    sizeToDraw1 : number = 18 * 1.7,
-    sizeToDraw2 : number = 18 * 1.7
+    sizeToDraw1 : number = 14,
+    sizeToDraw2 : number = 14
   ){ //pass in parameters for npc to enhance multiple npc 
   const hero = new Image();
   hero.onload = () => {
@@ -72,8 +72,8 @@ export class OverWorld {
           topCut, //top  cut
           widthOfCut, //width of cut
           heightOfCut, //height of cut 
-          currentX - 5, //x position on canvas 
-          currentY - 5, //y position on canvas
+          currentX - 2, //x position on canvas 
+          currentY - 2, //y position on canvas
           sizeToDraw1, //size to draw
           sizeToDraw2 //size to draw
         );
