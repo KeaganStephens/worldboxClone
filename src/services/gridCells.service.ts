@@ -10,15 +10,15 @@ export class worldGridCells {
 
     constructor(private saveMap : saveMap){}
 
-    scaleValue =  0.5;
+    scaleValue =  0.3;
     overWorld!: OverWorld;
     L = 10;
     H = this.L;
     O = 0;
     displayGrid : boolean = !true;
 
-    canvasWidth = 360;
-    canvasHeight = 360;
+    canvasWidth = 2560;
+    canvasHeight = 2560;
 
     numHorizontalTiles = this.canvasWidth / this.L;
     numVerticalTiles = this.canvasHeight / this.H;
@@ -121,6 +121,10 @@ export class worldGridCells {
     }
 
     updateScaleValue(value : number){
-        this.scaleValue =  value;
+        this.scaleValue = value;
+    }
+
+    getOverWorldCanvas(){
+        return this.overWorld;
     }
 }
