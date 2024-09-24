@@ -1,0 +1,12 @@
+.canvasContainer {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+}
+
+#gameCanvas {
+    position: absolute;
+    border: solid blue 1px;
+    image-rendering: pixelated;
+    background-color: red;
+}
