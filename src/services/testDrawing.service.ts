@@ -1,14 +1,14 @@
-import { Injectable, OnDestroy, OnInit } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { OverWorld } from '../classes/overWorld';
 import { worldGridCells } from './gridCells.service';
-import { saveMap } from '../classes/mapSave';
+import { TerrainId, DEFAULT_TERRAIN } from '../models/terrain.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class TestDrawing {
 
-  constructor(private GridCells: worldGridCells, private map : saveMap){}
+  constructor(private GridCells: worldGridCells) {}
 
   overWorld!: OverWorld;
   coord = { x: 0, y: 0 };
@@ -17,28 +17,22 @@ export class TestDrawing {
   windowHeight!: number;
   startOfCanvasX!: number;
   startOfCanvasY!: number;
-  private strokeStyle: string = 'lightblue';
+  currentTerrain: TerrainId = DEFAULT_TERRAIN;
+  tool: 'brush' | 'eraser' = 'brush';
 
   initDrawing(overWorld: OverWorld): void {
     this.overWorld = overWorld;
-    // debugger
-    this.GridCells.drawGrid(overWorld, this.map.mapOfTiles)
   }
 
-  setStrokeStyle(color: string) {
-    this.strokeStyle = color;
+  setTerrain(terrain: TerrainId) {
+    this.currentTerrain = terrain;
   }
 
-  // getWindowDimensions(windowWidth : number, windowHeight: number){
-  //   this.windowWidth = windowWidth;
-  //   this.windowHeight = windowHeight;
-  //   // width="360" height="204" * 2 Todo: make a more robust why to change width 
-  //   this.startOfCanvasX = (windowWidth - 720) / 2 
-  //   this.startOfCanvasY = (windowHeight - 720) / 2 
-  // }
+  setTool(tool: 'brush' | 'eraser') {
+    this.tool = tool;
+  }
 
   getPosition(event: MouseEvent | TouchEvent): void {
-    // debugger
     const rect = this.overWorld.canvas.getBoundingClientRect();
     if (event instanceof MouseEvent) {
       this.coord.x = event.clientX - rect.left;
@@ -51,7 +45,6 @@ export class TestDrawing {
   }
 
   startPainting(event: MouseEvent | TouchEvent): void {
-    // debugger
     this.paint = true;
     this.getPosition(event);
   }
@@ -61,12 +54,11 @@ export class TestDrawing {
   }
 
   sketch(event: MouseEvent): void {
-    // debugger
     if (!this.paint) return;
-    this.GridCells.clickedOnGrid(event, this.overWorld, this.strokeStyle, 0);
+    if (this.tool === 'eraser') {
+      this.GridCells.eraseOnGrid(event, this.overWorld);
+    } else {
+      this.GridCells.clickedOnGrid(event, this.overWorld, this.currentTerrain);
+    }
   }
-
-  // getCanvas(){
-  //   return this.overWorld
-  // }
 }

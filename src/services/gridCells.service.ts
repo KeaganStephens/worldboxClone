@@ -1,130 +1,175 @@
-import { Injectable, OnDestroy, OnInit } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { OverWorld } from '../classes/overWorld';
-import { saveMap } from '../classes/mapSave';
-import { TestDrawing } from './testDrawing.service';
+import { TilesetService } from './tileset.service';
+import { TerrainId, TERRAINS, DEFAULT_TERRAIN, ERASER_TERRAIN } from '../models/terrain.model';
+import { TILE_SIZE, CANVAS_SIZE } from '../models/world.config';
 
 @Injectable({
   providedIn: 'root',
 })
 export class worldGridCells {
 
-    constructor(private saveMap : saveMap){}
+  constructor(private tileset: TilesetService) {}
 
-    scaleValue =  0.3;
-    overWorld!: OverWorld;
-    L = 10;
-    H = this.L;
-    O = 0;
-    displayGrid : boolean = !true;
+  scaleValue = 1;
+  overWorld!: OverWorld;
+  L = TILE_SIZE;
+  H = this.L;
+  displayGrid: boolean = false;
 
-    canvasWidth = 2560;
-    canvasHeight = 2560;
+  canvasWidth = CANVAS_SIZE;
+  canvasHeight = CANVAS_SIZE;
 
-    numHorizontalTiles = this.canvasWidth / this.L;
-    numVerticalTiles = this.canvasHeight / this.H;
+  numHorizontalTiles = this.canvasWidth / this.L;
+  numVerticalTiles = this.canvasHeight / this.H;
 
-    mapOfTiles : any = {}
+  mapOfTiles: Record<string, { terrain: TerrainId }> = {};
+  private mapBuilt = false;
 
-    initWorldGrid(overWorld: OverWorld): void {
-        // this.mapOfTiles = this.map.mapOfTiles
-        this.overWorld = overWorld;
-        this.drawGrid(overWorld, this.mapOfTiles)
-        this.mapOfTiles = this.saveMap.mapOfTiles
+  initWorldGrid(overWorld: OverWorld): void {
+    this.overWorld = overWorld;
+    if (!this.mapBuilt) {
+      this.buildDefaultMap();
+      this.mapBuilt = true;
+      this.drawGrid(overWorld, this.tileset.getWaterFrame());
+    }
+  }
+
+  private buildDefaultMap(): void {
+    for (let ty = 0; ty < this.numVerticalTiles; ty++) {
+      for (let tx = 0; tx < this.numHorizontalTiles; tx++) {
+        this.mapOfTiles[`x${tx}y${ty}`] = { terrain: DEFAULT_TERRAIN };
+      }
+    }
+  }
+
+  drawGrid(overWorld: OverWorld, frame: number): void {
+    for (let ty = 0; ty < this.numVerticalTiles; ty++) {
+      for (let tx = 0; tx < this.numHorizontalTiles; tx++) {
+        this.renderTile(overWorld, tx, ty, frame);
+      }
+    }
+  }
+
+  private terrainAt(tx: number, ty: number, fallback: TerrainId): TerrainId {
+    if (tx < 0 || ty < 0 || tx >= this.numHorizontalTiles || ty >= this.numVerticalTiles) return fallback;
+    const tile = this.mapOfTiles[`x${tx}y${ty}`];
+    return tile ? tile.terrain : fallback;
+  }
+
+  renderTile(overWorld: OverWorld, tx: number, ty: number, frame: number): void {
+    const s = this.L;
+    const dx = tx * s;
+    const dy = ty * s;
+    const ctx = overWorld.ctx;
+    const terrain = this.terrainAt(tx, ty, DEFAULT_TERRAIN);
+
+    ctx.clearRect(dx, dy, s, s);
+    this.tileset.drawBase(ctx, terrain, frame, dx, dy);
+
+    const isWater = terrain === 'water';
+    const N = this.terrainAt(tx, ty - 1, terrain);
+    const E = this.terrainAt(tx + 1, ty, terrain);
+    const S = this.terrainAt(tx, ty + 1, terrain);
+    const W = this.terrainAt(tx - 1, ty, terrain);
+
+    const edges: [('N' | 'E' | 'S' | 'W'), TerrainId][] = [['N', N], ['E', E], ['S', S], ['W', W]];
+    for (const [side, nb] of edges) {
+      if ((nb === 'water') !== isWater) this.tileset.drawShoreEdge(ctx, side, dx, dy, isWater);
     }
 
-    drawGrid(overWorld : OverWorld, mapOfTiles : any){
-        for (let ty = 0; ty < this.numVerticalTiles; ty++) {
-            for (let tx = 0; tx < this.numHorizontalTiles; tx++) {
-                let x = `x${tx}`
-                let y = `y${ty}`
-                if(mapOfTiles[x+y] === undefined){
-                    mapOfTiles[x+y] = {
-                        traversable: false,
-                        tileType: 'transparent'
-                    }
-                    this.drawTile(overWorld,ty, tx , mapOfTiles[x+y].tileType);
-                }else{
-                    // // debugger
-                    this.drawTile(overWorld,ty, tx , mapOfTiles[x+y].tileType);
-                    if( mapOfTiles[x+y].tileType !== 'transparent'){
-                        overWorld.renderFloorTile(overWorld, false, '../../assets/img/dirtBlock.png',tx * this.L, ty * this.L)
-                    }
-                }
-                
-            }
-        }
+    const corners: [('NE' | 'SE' | 'SW' | 'NW'), TerrainId][] = [
+      ['NE', this.terrainAt(tx + 1, ty - 1, terrain)],
+      ['SE', this.terrainAt(tx + 1, ty + 1, terrain)],
+      ['SW', this.terrainAt(tx - 1, ty + 1, terrain)],
+      ['NW', this.terrainAt(tx - 1, ty - 1, terrain)],
+    ];
+    for (const [corner, nb] of corners) {
+      if ((nb === 'water') !== isWater) this.tileset.drawShoreCorner(ctx, corner, dx, dy, isWater);
     }
 
-    drawTile(overWorld: OverWorld,ty : number, tx : number, color : string = 'transparent', lineColor : string = 'black', size : number = 0, biome : boolean = true) {
-        // debugger
-        const topLeft = {
-            x: ((this.numVerticalTiles - ty) * this.O + tx * this.L) - (size * this.L), 
-            y: (ty * this.H) - (size * this.L)
-        };
-        const bottomLeft = { 
-            x: ((this.numVerticalTiles - ty - 1) * this.O + tx * this.L) - (size * this.L),
-            y: ((ty + 1) * this.H) + (size * this.L)
-        };
-        const topRight = { 
-            x: ((this.numVerticalTiles - ty) * this.O + (tx + 1) * this.L) + (size * this.L), 
-            y: (ty * this.H) - (size * this.L)
-        };
-        const bottomRight = { 
-            x: ((this.numVerticalTiles - ty - 1) * this.O + (tx + 1) * this.L) + (size * this.L), 
-            y: ((ty + 1) * this.H) + (size * this.L)
-        };
-
-        overWorld.ctx.beginPath();
-        overWorld.ctx.moveTo(topLeft.x, topLeft.y);
-        overWorld.ctx.lineTo(topRight.x, topRight.y);
-        overWorld.ctx.lineTo(bottomRight.x, bottomRight.y);
-        overWorld.ctx.lineTo(bottomLeft.x, bottomLeft.y);    
-        overWorld.ctx.closePath();
-        overWorld.ctx.fillStyle = color;
-        overWorld.ctx.fill();
-        if(this.displayGrid){
-            overWorld.ctx.strokeStyle = lineColor; 
-            overWorld.ctx.stroke();
-        }
+    if (this.displayGrid) {
+      ctx.strokeStyle = 'rgba(0,0,0,0.2)';
+      ctx.strokeRect(dx + 0.5, dy + 0.5, s - 1, s - 1);
     }
+  }
 
-    getTileCoordinates(x : number, y : number) {
-        const ty = Math.floor(y / this.H);
-        const tx = Math.floor(
-            // (x - (this.numVerticalTiles - (y / this.H)) * this.O) / this.L
-            x / this.H
-            );
-        return { tx, ty };
+  private renderAround(overWorld: OverWorld, tx: number, ty: number, frame: number): void {
+    for (let oy = -1; oy <= 1; oy++) {
+      for (let ox = -1; ox <= 1; ox++) {
+        const nx = tx + ox;
+        const ny = ty + oy;
+        if (nx < 0 || ny < 0 || nx >= this.numHorizontalTiles || ny >= this.numVerticalTiles) continue;
+        this.renderTile(overWorld, nx, ny, frame);
+      }
     }
+  }
 
-    clickedOnGrid(event: MouseEvent, overWorld: OverWorld, color: string, size : number){ //Todo: rename overWord to more fitting name
-        // debugger
-        const rect = this.overWorld.canvas.getBoundingClientRect();
-        const x = (event.clientX - rect.left) / this.scaleValue;
-        const y = (event.clientY - rect.top) / this.scaleValue;
+  getTileCoordinates(x: number, y: number) {
+    const ty = Math.floor(y / this.H);
+    const tx = Math.floor(x / this.H);
+    return { tx, ty };
+  }
 
-        const { tx, ty } = this.getTileCoordinates(x, y);
-        if (ty >= 0 && ty < this.numVerticalTiles && tx >= 0 && tx < this.numHorizontalTiles) {
-            this.mapOfTiles[`x${tx}y${ty}`].traversable = true;
-            this.mapOfTiles[`x${tx}y${ty}`].tileType = color;
-            overWorld.renderFloorTile(overWorld, false, '../../assets/img/dirtBlock.png',tx * this.L, ty * this.L)
-            this.drawTile(overWorld, ty, tx, color, color, size);
-        }
+  private eventToTile(event: MouseEvent) {
+    const rect = this.overWorld.canvas.getBoundingClientRect();
+    const x = (event.clientX - rect.left) / this.scaleValue;
+    const y = (event.clientY - rect.top) / this.scaleValue;
+    return this.getTileCoordinates(x, y);
+  }
+
+  clickedOnGrid(event: MouseEvent, overWorld: OverWorld, terrain: TerrainId): void {
+    const { tx, ty } = this.eventToTile(event);
+    if (tx < 0 || ty < 0 || tx >= this.numHorizontalTiles || ty >= this.numVerticalTiles) return;
+    const key = `x${tx}y${ty}`;
+    if (!this.mapOfTiles[key]) this.mapOfTiles[key] = { terrain: DEFAULT_TERRAIN };
+    this.mapOfTiles[key].terrain = terrain;
+    this.renderAround(overWorld, tx, ty, this.tileset.getWaterFrame());
+  }
+
+  eraseOnGrid(event: MouseEvent, overWorld: OverWorld): void {
+    const { tx, ty } = this.eventToTile(event);
+    if (tx < 0 || ty < 0 || tx >= this.numHorizontalTiles || ty >= this.numVerticalTiles) return;
+    const key = `x${tx}y${ty}`;
+    if (!this.mapOfTiles[key]) this.mapOfTiles[key] = { terrain: DEFAULT_TERRAIN };
+    this.mapOfTiles[key].terrain = ERASER_TERRAIN;
+    this.renderAround(overWorld, tx, ty, this.tileset.getWaterFrame());
+  }
+
+  isTraversable(x: number, y: number): boolean {
+    if (x < 0 || y < 0 || x >= this.numHorizontalTiles || y >= this.numVerticalTiles) return false;
+    const tile = this.mapOfTiles[`x${x}y${y}`];
+    return !!tile && TERRAINS[tile.terrain].traversable;
+  }
+
+  getDisplayGrid(x: number, y: number) {
+    return this.mapOfTiles[`x${x}y${y}`];
+  }
+
+  // ponytail: scans full 256x256 map each tick; fine while water area is small, index water tiles if it grows
+  renderWaterTiles(): void {
+    if (!this.overWorld) return;
+    const frame = this.tileset.getWaterFrame();
+    for (const key in this.mapOfTiles) {
+      if (this.mapOfTiles[key].terrain !== 'water') continue;
+      const coords = key.slice(1).split('y');
+      this.renderTile(this.overWorld, Number(coords[0]), Number(coords[1]), frame);
     }
+  }
 
-    getDisplayGrid(x: number, y : number){
-        return this.mapOfTiles[`x${x}y${y}`]
-    }
+  setDisplayGrid(display: boolean) {
+    this.displayGrid = display;
+  }
 
-    getScaleValue(){
-        return this.scaleValue;
-    }
+  getScaleValue() {
+    return this.scaleValue;
+  }
 
-    updateScaleValue(value : number){
-        this.scaleValue = value;
-    }
+  updateScaleValue(value: number) {
+    this.scaleValue = value;
+  }
 
-    getOverWorldCanvas(){
-        return this.overWorld;
-    }
+  getOverWorldCanvas() {
+    return this.overWorld;
+  }
 }

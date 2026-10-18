@@ -147,14 +147,10 @@ npcRandomWalk(npc: NPC) { //todo: chatgpt generated State-Based Behavior look in
 
 checkValidityOfMovement(direction: string, npc: NPC) {
   const lengthOfMovementList = npc.movementQueue.length;
-  let gridIndex: any;
   const [dx, dy] = this.getDeltaForDirection(direction);
+  const valid = this.gridCells.isTraversable(npc.currentX + dx, npc.currentY + dy);
 
-  if (dx !== undefined && dy !== undefined) {
-      gridIndex = this.gridCells.getDisplayGrid(npc.currentX + dx, npc.currentY + dy);
-  }
-
-  if (gridIndex && gridIndex.traversable && npc.movementQueue[lengthOfMovementList - 1] !== direction) {
+  if (valid && npc.movementQueue[lengthOfMovementList - 1] !== direction) {
       npc.movementQueue.pop();
       npc.movementQueue.push(direction);
   }

@@ -4,29 +4,62 @@
     height: 100vh;
 }
 
-.gameCanvas, .gameCanvasDraw, .gameCanvasGrid {
+.gameCanvas, .gameCanvasDraw {
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
-    border: solid blue 1px;
-    image-rendering: pixelated;
     transform: translate(-50%, -50%) scale(1);
-}
-
-.red{
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    border: solid red 1px;
     image-rendering: pixelated;
-    transform: translate(-50%, -50%) scale(0.1);
 }
 
-.gameCanvasDraw {
-    border-color: red;
+.canvasContainer.debug .gameCanvas {
+    border: solid blue 1px;
 }
 
-#colorPicker{
+.canvasContainer.debug .gameCanvasDraw {
+    border: solid red 1px;
+}
+
+.toolbar {
     position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 10;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    max-width: 260px;
+    padding: 8px;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 6px;
+}
+
+.toolGroup {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.swatch {
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    border: 1px solid #fff;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.swatch.active,
+.tool.active {
+    outline: 2px solid #ffd54f;
+}
+
+.tool {
+    padding: 4px 8px;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 3px;
+    cursor: pointer;
 }
